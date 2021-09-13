@@ -31,7 +31,7 @@ function Footer(props) {
             <ul>
               <li>
                 <a href="https://www.creative-tim.com" target="_blank">
-                  Creative Tim
+                  Theme by Creative Tim
                 </a>
               </li>
               <li>

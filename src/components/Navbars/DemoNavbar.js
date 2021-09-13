@@ -106,7 +106,7 @@ function Header(props) {
       }
     >
       <Container fluid>
-        <div className="navbar-wrapper">
+        {/* <div className="navbar-wrapper">
           <div className="navbar-toggle">
             <button
               type="button"
@@ -172,8 +172,8 @@ function Header(props) {
               </Link>
             </NavItem>
           </Nav>
-        </Collapse>
-      </Container>
+        </Collapse> */}
+      </Container> 
     </Navbar>
   );
 }
