@@ -133,7 +133,7 @@ function TotalValueLocked() {
           labels: labels,
           datasets: [
           {
-              label: "Total Liquidity",
+              label: "% Utilization of the Protocol",
               data: WBTC_Utils,
               fill: true,
               backgroundColor: "rgba(20, 200, 0, 0.2)",
