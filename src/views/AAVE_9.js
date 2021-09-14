@@ -178,9 +178,22 @@ function ValueWrapper(value) {
   bigText = bigText[0];
   if (bigText === '0') return bigText + '.' + smallText.slice(0,3)
   if (bigText.length < 4) return bigText + ''
-  if (bigText.length < 7) return bigText.slice(0,3) + ' K'
-  if (bigText.length < 11) return bigText.slice(0,3) + ' M'
-  if (bigText.length < 14) return bigText.slice(0,3) + ' B'
+  if (bigText.length < 5) return bigText.slice(0,1) + 'K'
+  if (bigText.length < 6) return bigText.slice(0,2) + 'K'
+  if (bigText.length < 7) return bigText.slice(0,3) + 'K'
+
+  if (bigText.length < 8) return bigText.slice(0,1) + ' M'
+  if (bigText.length < 9) return bigText.slice(0,2) + ' M'
+  if (bigText.length < 10) return bigText.slice(0,3) + ' M'
+
+  if (bigText.length < 11) return bigText.slice(0,1) + ' B'
+  if (bigText.length < 12) return bigText.slice(0,2) + ' B'
+  if (bigText.length < 13) return bigText.slice(0,3) + ' B'
+
+  if (bigText.length < 14) return bigText.slice(0,1) + ' T'
+  if (bigText.length < 15) return bigText.slice(0,2) + ' T'
+  if (bigText.length < 16) return bigText.slice(0,3) + ' T'
+
   return value;
 }
 
