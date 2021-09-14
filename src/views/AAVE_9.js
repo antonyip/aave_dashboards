@@ -59,7 +59,7 @@ function AAVE_Charts() {
     axios.get("https://api.flipsidecrypto.com/api/v2/queries/8292ba94-5594-433f-ae54-6ff36ebd41e1/data/latest")
     .then( response => {
       response.data.map( x => {
-        tmpX.push(x.DDATE)
+        tmpX.push(x.DDATE.slice(0,10))
         tmpY.push(x.SSUM)
         tmpZ.push(x.CCOUNT)
       });
@@ -122,7 +122,7 @@ function Compound_Charts() {
     axios.get("https://api.flipsidecrypto.com/api/v2/queries/810b375b-da6e-485b-9f0b-aec82d340b8f/data/latest")
     .then( response => {
       response.data.map( x => {
-        tmpX.push(x.DDATE)
+        tmpX.push(x.DDATE.slice(0,10))
         tmpY.push(x.SSUM)
         tmpZ.push(x.CCOUNT)
       });
