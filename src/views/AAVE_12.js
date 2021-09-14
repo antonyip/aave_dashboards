@@ -37,139 +37,10 @@ import {
   TabPane,
   Nav,
   NavItem,
-  NavLink
+  NavLink,
+  Spinner
 } from "reactstrap";
 import classnames from 'classnames';
-
-function Compound_USD_Value() {
-
-}
-
-function AAVE_Charts() {
-  const [ loading, setLoading ] = useState(true); 
-  const [ error, setError ] = useState(false);
-  const [ AAVEChartData, setAAVEChartData ] = useState();
-  const [ AAVEChartData2, setAAVEChartData2 ] = useState();
-  const [ errorData, setErrorData ] = useState(false);
-
-  let tmpX = [];
-  let tmpY = [];
-  let tmpZ = [];
-  useEffect( () => {
-    axios.get("https://api.flipsidecrypto.com/api/v2/queries/8292ba94-5594-433f-ae54-6ff36ebd41e1/data/latest")
-    .then( response => {
-      response.data.map( x => {
-        tmpX.push(x.DDATE)
-        tmpY.push(x.SSUM)
-        tmpZ.push(x.CCOUNT)
-      });
-      setAAVEChartData({
-        labels: tmpX,
-        datasets: [
-          {
-          label: "Flashloan in USD",
-          data: tmpY,
-          fill: true,
-          backgroundColor: "rgba(165, 52, 235,0.2)",
-          borderColor: "rgba(165, 52, 235,1)"
-          }
-        ]
-      });
-      setAAVEChartData2({
-        labels: tmpX,
-        datasets: [
-          {
-          label: "Number of FlashLoans Daily",
-          data: tmpZ,
-          fill: true,
-          backgroundColor: "rgba(165, 52, 235,0.2)",
-          borderColor: "rgba(165, 52, 235,1)"
-          }
-        ]
-      });
-    }).catch(error => {
-      setError(true);
-      setErrorData(error);
-    }).finally(() => {
-      setLoading(false);
-    })
-  } , []);
-
-
-  if (error) return <div className="content">{errorData}</div>;
-  if (loading) return <div className="content">Loading...</div>;
-
-  return (
-    <>
-    <Line data={AAVEChartData}></Line>
-    <Line data={AAVEChartData2}></Line>
-    </>
-  )
-
-}
-
-function Compound_Charts() {
-  const [ loading, setLoading ] = useState(true); 
-  const [ error, setError ] = useState(false);
-  const [ AAVEChartData, setAAVEChartData ] = useState();
-  const [ AAVEChartData2, setAAVEChartData2 ] = useState();
-  const [ errorData, setErrorData ] = useState(false);
-
-  let tmpX = [];
-  let tmpY = [];
-  let tmpZ = [];
-  useEffect( () => {
-    axios.get("https://api.flipsidecrypto.com/api/v2/queries/810b375b-da6e-485b-9f0b-aec82d340b8f/data/latest")
-    .then( response => {
-      response.data.map( x => {
-        tmpX.push(x.DDATE)
-        tmpY.push(x.SSUM)
-        tmpZ.push(x.CCOUNT)
-      });
-      setAAVEChartData({
-        labels: tmpX,
-        datasets: [
-          {
-          label: "Flashloan in USD",
-          data: tmpY,
-          fill: true,
-          backgroundColor: "rgba(52, 235, 52, 0.2)",
-          borderColor: "rgba(52, 235, 52, 1)"
-          }
-        ]
-      });
-      setAAVEChartData2({
-        labels: tmpX,
-        datasets: [
-          {
-          label: "Number of FlashLoans Daily",
-          data: tmpZ,
-          fill: true,
-          backgroundColor: "rgba(52, 235, 52, 0.2)",
-          borderColor: "rgba(52, 235, 52, 1)"
-          }
-        ]
-      });
-    }).catch(error => {
-      setError(true);
-      setErrorData(error);
-    }).finally(() => {
-      setLoading(false);
-    })
-  } , []);
-
-
-  if (error) return <div className="content">{errorData}</div>;
-  if (loading) return <div className="content">Loading...</div>;
-
-  return (
-    <>
-    <Line data={AAVEChartData}></Line>
-    <Line data={AAVEChartData2}></Line>
-    </>
-  )
-
-}
 
 function ValueWrapper(value) {
   let textValue = value.toString();
@@ -197,161 +68,918 @@ function ValueWrapper(value) {
   return value;
 }
 
-function AAVE_Transactions() {
-  const [data, setData] = useState([]);
-  const [pageData, setPageData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [errorData, setErrorData] = useState(false);
-  const [page, setPage] = useState(1);
-
-  const [aave_data, aave_setData] = useState([]);
-  const [aave_pageData, aave_setPageData] = useState([]);
-  const [aave_page, aave_setPage] = useState(1);
-
-  useEffect( () => {
-    axios.get("https://api.flipsidecrypto.com/api/v2/queries/a33d2381-961a-43fa-b865-be8baf07ab26/data/latest")
-    .then( response => {
-      aave_setData(response.data);
-      aave_setPageData((response.data).slice(0,20));
-    }).catch(error => {
-      setError(true);
-      setErrorData(error);
-    }).finally(() => {
-      setLoading(false);
-    })
-
-  } , []);
 
 
-  const prevClicked_aave = () => {
-    let currentPage = aave_page;
-    if (aave_page > 0) {
-      aave_setPage(aave_page - 1);   
-      currentPage = aave_page-1;
-    }
-    aave_setPageData(aave_data.slice((currentPage)*20,(currentPage+1)*20))
+function TotalValueLocked() {
+
+  const [data, setData] = useState();
+  const [dataDaily, setDataDaily] = useState();
+  const [dataDailyPartial, setDataDailyPartial] = useState();
+  const [error, setError] = useState();
+  const [errorData, setErrorData] = useState();
+  const [loading, setLoading] = useState();
+  const [firstChart, setFirstChart] = useState();
+  const firstChartOptions = {
+    title: { display: true, text: 'My Chart' },
+    zoom: {
+      enabled: true,
+      mode: 'x',
+    },
+    pan: {
+      enabled: true,
+      mode: 'x',
+    },
   }
 
-  const nextClicked_aave = () => {
-    let currentPage = aave_page;
-    if (aave_page > 0) {
-      aave_setPage(aave_page + 1);
-      currentPage = aave_page+1;
-    }
-    aave_setPageData(aave_data.slice((currentPage)*20,(currentPage+1)*20))
+  const mainChartClick = dataset => {
+    if (!dataset.length) return;
+    const datasetIndex = dataset[0].datasetIndex;
+    //console.log("di",firstChart.datasets[datasetIndex].label);
   }
 
-  if (error) return <div className="content">{errorData}</div>;
-  if (loading) return <div className="content">Loading...</div>;
+  const resetChart = e => {
+    setDataDailyPartial(firstChart);
+  }
 
-  return (
-    <>
-    <h1>AAVE Flash Loans</h1>
-          <Row>
-            <Col md="1">Block_ID</Col>
-            <Col md="1">Symbol</Col>
-            <Col md="2">Borrowed_Value_USD</Col>
-            <Col md="2">Repaid_Value_USD</Col>
-            <Col md="6">Transaction_ID</Col>
-          </Row>
-          { aave_pageData.map( x => {
-          return (
-          <Row>
-          <Col md="1">{x.BLOCK_ID}</Col>
-          <Col md="1">{x.SYMBOL}</Col>
-          <Col md="2">{ValueWrapper(x.FLASHLOAN_AMOUNT_USD)}</Col>
-          <Col md="2">{ValueWrapper(x.FLASHLOAN_AMOUNT_USD+x.PREMIUM_AMOUNT_USD)}</Col>
-          <Col md="6"><a target="_blank" href={"https://etherscan.io/tx/" + x.TX_ID}>{x.TX_ID}</a></Col>
-          </Row>
-          );
-        }) }
-          <Row>
-            <Col md="5"></Col>
-            <Col md="1"><Button onClick={prevClicked_aave}>Prev</Button></Col>
-            <Col md="1"><Button onClick={nextClicked_aave}>Next</Button></Col>
-            <Col md="5"></Col>
-        </Row>
-    </>
-  )
-}
+  const getElementAtEvent = element => {
+    if (!element.length) return;
 
-function Compound_Transactions() {
-  const [data, setData] = useState([]);
-  const [pageData, setPageData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [errorData, setErrorData] = useState(false);
-  const [page, setPage] = useState(1);
+    const { datasetIndex, index } = element[0];
+    let yearMonth = firstChart.labels[index];
+    console.log("fc", yearMonth);
 
+    let year = yearMonth.split('-')[0];
+    let month = yearMonth.split('-')[1];
+    if (month.length === 1) {month = '0'+month;}
+    yearMonth = year+'-'+month;
+
+    let labels = []
+    let WBTC = []
+    let UNI = []
+    let DAI = []
+    let ENJ = []
+    let USDC = []
+    let GUSD = []
+    let RAI = []
+    let CRV = []
+    let BAL = []
+    let PAX = []
+    let FRAX = []
+    let REN = []
+    let BAT = []
+    let TUSD = []
+    let DPI = []
+    let LINK = []
+    let MANA = []
+    let WETH = []
+    let AAVE = []
+    let AMPL = []
+    let ZRX = []
+    let SNX = []
+    let KNC = []
+    let MKR = []
+    let USDP = []
+    let YFI = []
+    let BUSD = []
+    let USDT = []
+    let SUSD = []
+    let RENFIL = []
+    let XSUSHI = []
+
+    
+    dataDaily.map( x=> {
+      //console.log(x.EDDATE);
+      //console.log(x.EDDATE.slice(0,7));
+      if (x.EDDATE.slice(0,7) === yearMonth)
+      {
+        //console.log(x.EDDATE.slice(0,7));
+        labels.push(x.EDDATE.slice(0,10))
+        WBTC.push(x.WBTC_TOTAL_LIQUIDITY_USD)
+        UNI.push(x.UNI_TOTAL_LIQUIDITY_USD)
+        DAI.push(x.DAI_TOTAL_LIQUIDITY_USD)
+        ENJ.push(x.ENJ_TOTAL_LIQUIDITY_USD)
+        USDC.push(x.USDC_TOTAL_LIQUIDITY_USD)
+        GUSD.push(x.GUSD_TOTAL_LIQUIDITY_USD)
+        RAI.push(x.RAI_TOTAL_LIQUIDITY_USD)
+        CRV.push(x.CRV_TOTAL_LIQUIDITY_USD)
+        BAL.push(x.BAL_TOTAL_LIQUIDITY_USD)
+        PAX.push(x.PAX_TOTAL_LIQUIDITY_USD)
+        FRAX.push(x.FRAX_TOTAL_LIQUIDITY_USD)
+        REN.push(x.REN_TOTAL_LIQUIDITY_USD)
+        BAT.push(x.BAT_TOTAL_LIQUIDITY_USD)
+        TUSD.push(x.TUSD_TOTAL_LIQUIDITY_USD)
+        DPI.push(x.DPI_TOTAL_LIQUIDITY_USD)
+        LINK.push(x.LINK_TOTAL_LIQUIDITY_USD)
+        MANA.push(x.MANA_TOTAL_LIQUIDITY_USD)
+        WETH.push(x.WETH_TOTAL_LIQUIDITY_USD)
+        AAVE.push(x.AAVE_TOTAL_LIQUIDITY_USD)
+        AMPL.push(x.AMPL_TOTAL_LIQUIDITY_USD)
+        ZRX.push(x.ZRX_TOTAL_LIQUIDITY_USD)
+        SNX.push(x.SNX_TOTAL_LIQUIDITY_USD)
+        KNC.push(x.KNC_TOTAL_LIQUIDITY_USD)
+        MKR.push(x.MKR_TOTAL_LIQUIDITY_USD)
+        USDP.push(x.USDP_TOTAL_LIQUIDITY_USD)
+        YFI.push(x.YFI_TOTAL_LIQUIDITY_USD)
+        BUSD.push(x.BUSD_TOTAL_LIQUIDITY_USD)
+        USDT.push(x.USDT_TOTAL_LIQUIDITY_USD)
+        SUSD.push(x.SUSD_TOTAL_LIQUIDITY_USD)
+        RENFIL.push(x.RENFIL_TOTAL_LIQUIDITY_USD)
+        XSUSHI.push(x.XSUSHI_TOTAL_LIQUIDITY_USD)
+      }
+    });
+
+    setDataDailyPartial(
+      {
+        labels: labels,
+        datasets: [
+          {
+            label: "WBTC",
+            data: WBTC,
+            fill: true,
+            backgroundColor: "rgba(220, 64, 33, 0.2)",
+            borderColor: "rgba(220, 64, 33, 1)"
+        },
+        {
+            label: "UNI",
+            data: UNI,
+            fill: true,
+            backgroundColor: "rgba(244, 250, 40, 0.2)",
+            borderColor: "rgba(244, 250, 40, 1)"
+        },
+        {
+            label: "DAI",
+            data: DAI,
+            fill: true,
+            backgroundColor: "rgba(231, 109, 241, 0.2)",
+            borderColor: "rgba(231, 109, 241, 1)"
+        },
+        {
+            label: "ENJ",
+            data: ENJ,
+            fill: true,
+            backgroundColor: "rgba(28, 46, 239, 0.2)",
+            borderColor: "rgba(28, 46, 239, 1)"
+        },
+        {
+            label: "USDC",
+            data: USDC,
+            fill: true,
+            backgroundColor: "rgba(218, 7, 66, 0.2)",
+            borderColor: "rgba(218, 7, 66, 1)"
+        },
+        {
+            label: "GUSD",
+            data: GUSD,
+            fill: true,
+            backgroundColor: "rgba(58, 195, 120, 0.2)",
+            borderColor: "rgba(58, 195, 120, 1)"
+        },
+        {
+            label: "RAI",
+            data: RAI,
+            fill: true,
+            backgroundColor: "rgba(18, 116, 209, 0.2)",
+            borderColor: "rgba(18, 116, 209, 1)"
+        },
+        {
+            label: "CRV",
+            data: CRV,
+            fill: true,
+            backgroundColor: "rgba(228, 34, 41, 0.2)",
+            borderColor: "rgba(228, 34, 41, 1)"
+        },
+        {
+            label: "BAL",
+            data: BAL,
+            fill: true,
+            backgroundColor: "rgba(133, 74, 237, 0.2)",
+            borderColor: "rgba(133, 74, 237, 1)"
+        },
+        {
+            label: "PAX",
+            data: PAX,
+            fill: true,
+            backgroundColor: "rgba(167, 44, 192, 0.2)",
+            borderColor: "rgba(167, 44, 192, 1)"
+        },
+        {
+            label: "FRAX",
+            data: FRAX,
+            fill: true,
+            backgroundColor: "rgba(89, 229, 99, 0.2)",
+            borderColor: "rgba(89, 229, 99, 1)"
+        },
+        {
+            label: "REN",
+            data: REN,
+            fill: true,
+            backgroundColor: "rgba(110, 33, 230, 0.2)",
+            borderColor: "rgba(110, 33, 230, 1)"
+        },
+        {
+            label: "BAT",
+            data: BAT,
+            fill: true,
+            backgroundColor: "rgba(118, 244, 127, 0.2)",
+            borderColor: "rgba(118, 244, 127, 1)"
+        },
+        {
+            label: "TUSD",
+            data: TUSD,
+            fill: true,
+            backgroundColor: "rgba(127, 42, 84, 0.2)",
+            borderColor: "rgba(127, 42, 84, 1)"
+        },
+        {
+            label: "DPI",
+            data: DPI,
+            fill: true,
+            backgroundColor: "rgba(248, 148, 246, 0.2)",
+            borderColor: "rgba(248, 148, 246, 1)"
+        },
+        {
+            label: "LINK",
+            data: LINK,
+            fill: true,
+            backgroundColor: "rgba(3, 70, 127, 0.2)",
+            borderColor: "rgba(3, 70, 127, 1)"
+        },
+        {
+            label: "MANA",
+            data: MANA,
+            fill: true,
+            backgroundColor: "rgba(108, 89, 239, 0.2)",
+            borderColor: "rgba(108, 89, 239, 1)"
+        },
+        {
+            label: "WETH",
+            data: WETH,
+            fill: true,
+            backgroundColor: "rgba(215, 21, 26, 0.2)",
+            borderColor: "rgba(215, 21, 26, 1)"
+        },
+        {
+            label: "AAVE",
+            data: AAVE,
+            fill: true,
+            backgroundColor: "rgba(14, 207, 80, 0.2)",
+            borderColor: "rgba(14, 207, 80, 1)"
+        },
+        {
+            label: "AMPL",
+            data: AMPL,
+            fill: true,
+            backgroundColor: "rgba(223, 193, 220, 0.2)",
+            borderColor: "rgba(223, 193, 220, 1)"
+        },
+        {
+            label: "ZRX",
+            data: ZRX,
+            fill: true,
+            backgroundColor: "rgba(158, 210, 72, 0.2)",
+            borderColor: "rgba(158, 210, 72, 1)"
+        },
+        {
+            label: "SNX",
+            data: SNX,
+            fill: true,
+            backgroundColor: "rgba(220, 111, 182, 0.2)",
+            borderColor: "rgba(220, 111, 182, 1)"
+        },
+        {
+            label: "KNC",
+            data: KNC,
+            fill: true,
+            backgroundColor: "rgba(129, 29, 245, 0.2)",
+            borderColor: "rgba(129, 29, 245, 1)"
+        },
+        {
+            label: "MKR",
+            data: MKR,
+            fill: true,
+            backgroundColor: "rgba(142, 201, 36, 0.2)",
+            borderColor: "rgba(142, 201, 36, 1)"
+        },
+        {
+            label: "USDP",
+            data: USDP,
+            fill: true,
+            backgroundColor: "rgba(155, 182, 153, 0.2)",
+            borderColor: "rgba(155, 182, 153, 1)"
+        },
+        {
+            label: "YFI",
+            data: YFI,
+            fill: true,
+            backgroundColor: "rgba(93, 220, 31, 0.2)",
+            borderColor: "rgba(93, 220, 31, 1)"
+        },
+        {
+            label: "BUSD",
+            data: BUSD,
+            fill: true,
+            backgroundColor: "rgba(101, 239, 163, 0.2)",
+            borderColor: "rgba(101, 239, 163, 1)"
+        },
+        {
+            label: "USDT",
+            data: USDT,
+            fill: true,
+            backgroundColor: "rgba(202, 19, 154, 0.2)",
+            borderColor: "rgba(202, 19, 154, 1)"
+        },
+        {
+            label: "SUSD",
+            data: SUSD,
+            fill: true,
+            backgroundColor: "rgba(217, 251, 247, 0.2)",
+            borderColor: "rgba(217, 251, 247, 1)"
+        },
+        {
+            label: "RENFIL",
+            data: RENFIL,
+            fill: true,
+            backgroundColor: "rgba(184, 159, 101, 0.2)",
+            borderColor: "rgba(184, 159, 101, 1)"
+        },
+        {
+            label: "XSUSHI",
+            data: XSUSHI,
+            fill: true,
+            backgroundColor: "rgba(5, 56, 141, 0.2)",
+            borderColor: "rgba(5, 56, 141, 1)"
+        },
+        ]
+      }
+    )
+  };
+  
+  let labels = []
+  let WBTC = []
+  let UNI = []
+  let DAI = []
+  let ENJ = []
+  let USDC = []
+  let GUSD = []
+  let RAI = []
+  let CRV = []
+  let BAL = []
+  let PAX = []
+  let FRAX = []
+  let REN = []
+  let BAT = []
+  let TUSD = []
+  let DPI = []
+  let LINK = []
+  let MANA = []
+  let WETH = []
+  let AAVE = []
+  let AMPL = []
+  let ZRX = []
+  let SNX = []
+  let KNC = []
+  let MKR = []
+  let USDP = []
+  let YFI = []
+  let BUSD = []
+  let USDT = []
+  let SUSD = []
+  let RENFIL = []
+  let XSUSHI = []
   useEffect( () => {
-    axios.get("https://api.flipsidecrypto.com/api/v2/queries/9ff6ad23-4643-4960-89c1-14e7ac718fb3/data/latest")
+    
+    axios.get("https://api.flipsidecrypto.com/api/v2/queries/87a00750-3f9d-424d-aa08-de7121da7118/data/latest")
     .then( response => {
       setData(response.data);
-      setPageData((response.data).slice(0,20));
-    }).catch(error => {
+      response.data.map( x => {
+        labels.push(x.EDDATE.slice(0,10))
+        WBTC.push(x.WBTC_TOTAL_LIQUIDITY_USD)
+        UNI.push(x.UNI_TOTAL_LIQUIDITY_USD)
+        DAI.push(x.DAI_TOTAL_LIQUIDITY_USD)
+        ENJ.push(x.ENJ_TOTAL_LIQUIDITY_USD)
+        USDC.push(x.USDC_TOTAL_LIQUIDITY_USD)
+        GUSD.push(x.GUSD_TOTAL_LIQUIDITY_USD)
+        RAI.push(x.RAI_TOTAL_LIQUIDITY_USD)
+        CRV.push(x.CRV_TOTAL_LIQUIDITY_USD)
+        BAL.push(x.BAL_TOTAL_LIQUIDITY_USD)
+        PAX.push(x.PAX_TOTAL_LIQUIDITY_USD)
+        FRAX.push(x.FRAX_TOTAL_LIQUIDITY_USD)
+        REN.push(x.REN_TOTAL_LIQUIDITY_USD)
+        BAT.push(x.BAT_TOTAL_LIQUIDITY_USD)
+        TUSD.push(x.TUSD_TOTAL_LIQUIDITY_USD)
+        DPI.push(x.DPI_TOTAL_LIQUIDITY_USD)
+        LINK.push(x.LINK_TOTAL_LIQUIDITY_USD)
+        MANA.push(x.MANA_TOTAL_LIQUIDITY_USD)
+        WETH.push(x.WETH_TOTAL_LIQUIDITY_USD)
+        AAVE.push(x.AAVE_TOTAL_LIQUIDITY_USD)
+        AMPL.push(x.AMPL_TOTAL_LIQUIDITY_USD)
+        ZRX.push(x.ZRX_TOTAL_LIQUIDITY_USD)
+        SNX.push(x.SNX_TOTAL_LIQUIDITY_USD)
+        KNC.push(x.KNC_TOTAL_LIQUIDITY_USD)
+        MKR.push(x.MKR_TOTAL_LIQUIDITY_USD)
+        USDP.push(x.USDP_TOTAL_LIQUIDITY_USD)
+        YFI.push(x.YFI_TOTAL_LIQUIDITY_USD)
+        BUSD.push(x.BUSD_TOTAL_LIQUIDITY_USD)
+        USDT.push(x.USDT_TOTAL_LIQUIDITY_USD)
+        SUSD.push(x.SUSD_TOTAL_LIQUIDITY_USD)
+        RENFIL.push(x.RENFIL_TOTAL_LIQUIDITY_USD)
+        XSUSHI.push(x.XSUSHI_TOTAL_LIQUIDITY_USD)
+      })
+
+      setFirstChart(
+        {
+          labels: labels,
+          datasets: [
+            {
+              label: "WBTC",
+              data: WBTC,
+              fill: true,
+              backgroundColor: "rgba(220, 64, 33, 0.2)",
+              borderColor: "rgba(220, 64, 33, 1)"
+          },
+          {
+              label: "UNI",
+              data: UNI,
+              fill: true,
+              backgroundColor: "rgba(244, 250, 40, 0.2)",
+              borderColor: "rgba(244, 250, 40, 1)"
+          },
+          {
+              label: "DAI",
+              data: DAI,
+              fill: true,
+              backgroundColor: "rgba(231, 109, 241, 0.2)",
+              borderColor: "rgba(231, 109, 241, 1)"
+          },
+          {
+              label: "ENJ",
+              data: ENJ,
+              fill: true,
+              backgroundColor: "rgba(28, 46, 239, 0.2)",
+              borderColor: "rgba(28, 46, 239, 1)"
+          },
+          {
+              label: "USDC",
+              data: USDC,
+              fill: true,
+              backgroundColor: "rgba(218, 7, 66, 0.2)",
+              borderColor: "rgba(218, 7, 66, 1)"
+          },
+          {
+              label: "GUSD",
+              data: GUSD,
+              fill: true,
+              backgroundColor: "rgba(58, 195, 120, 0.2)",
+              borderColor: "rgba(58, 195, 120, 1)"
+          },
+          {
+              label: "RAI",
+              data: RAI,
+              fill: true,
+              backgroundColor: "rgba(18, 116, 209, 0.2)",
+              borderColor: "rgba(18, 116, 209, 1)"
+          },
+          {
+              label: "CRV",
+              data: CRV,
+              fill: true,
+              backgroundColor: "rgba(228, 34, 41, 0.2)",
+              borderColor: "rgba(228, 34, 41, 1)"
+          },
+          {
+              label: "BAL",
+              data: BAL,
+              fill: true,
+              backgroundColor: "rgba(133, 74, 237, 0.2)",
+              borderColor: "rgba(133, 74, 237, 1)"
+          },
+          {
+              label: "PAX",
+              data: PAX,
+              fill: true,
+              backgroundColor: "rgba(167, 44, 192, 0.2)",
+              borderColor: "rgba(167, 44, 192, 1)"
+          },
+          {
+              label: "FRAX",
+              data: FRAX,
+              fill: true,
+              backgroundColor: "rgba(89, 229, 99, 0.2)",
+              borderColor: "rgba(89, 229, 99, 1)"
+          },
+          {
+              label: "REN",
+              data: REN,
+              fill: true,
+              backgroundColor: "rgba(110, 33, 230, 0.2)",
+              borderColor: "rgba(110, 33, 230, 1)"
+          },
+          {
+              label: "BAT",
+              data: BAT,
+              fill: true,
+              backgroundColor: "rgba(118, 244, 127, 0.2)",
+              borderColor: "rgba(118, 244, 127, 1)"
+          },
+          {
+              label: "TUSD",
+              data: TUSD,
+              fill: true,
+              backgroundColor: "rgba(127, 42, 84, 0.2)",
+              borderColor: "rgba(127, 42, 84, 1)"
+          },
+          {
+              label: "DPI",
+              data: DPI,
+              fill: true,
+              backgroundColor: "rgba(248, 148, 246, 0.2)",
+              borderColor: "rgba(248, 148, 246, 1)"
+          },
+          {
+              label: "LINK",
+              data: LINK,
+              fill: true,
+              backgroundColor: "rgba(3, 70, 127, 0.2)",
+              borderColor: "rgba(3, 70, 127, 1)"
+          },
+          {
+              label: "MANA",
+              data: MANA,
+              fill: true,
+              backgroundColor: "rgba(108, 89, 239, 0.2)",
+              borderColor: "rgba(108, 89, 239, 1)"
+          },
+          {
+              label: "WETH",
+              data: WETH,
+              fill: true,
+              backgroundColor: "rgba(215, 21, 26, 0.2)",
+              borderColor: "rgba(215, 21, 26, 1)"
+          },
+          {
+              label: "AAVE",
+              data: AAVE,
+              fill: true,
+              backgroundColor: "rgba(14, 207, 80, 0.2)",
+              borderColor: "rgba(14, 207, 80, 1)"
+          },
+          {
+              label: "AMPL",
+              data: AMPL,
+              fill: true,
+              backgroundColor: "rgba(223, 193, 220, 0.2)",
+              borderColor: "rgba(223, 193, 220, 1)"
+          },
+          {
+              label: "ZRX",
+              data: ZRX,
+              fill: true,
+              backgroundColor: "rgba(158, 210, 72, 0.2)",
+              borderColor: "rgba(158, 210, 72, 1)"
+          },
+          {
+              label: "SNX",
+              data: SNX,
+              fill: true,
+              backgroundColor: "rgba(220, 111, 182, 0.2)",
+              borderColor: "rgba(220, 111, 182, 1)"
+          },
+          {
+              label: "KNC",
+              data: KNC,
+              fill: true,
+              backgroundColor: "rgba(129, 29, 245, 0.2)",
+              borderColor: "rgba(129, 29, 245, 1)"
+          },
+          {
+              label: "MKR",
+              data: MKR,
+              fill: true,
+              backgroundColor: "rgba(142, 201, 36, 0.2)",
+              borderColor: "rgba(142, 201, 36, 1)"
+          },
+          {
+              label: "USDP",
+              data: USDP,
+              fill: true,
+              backgroundColor: "rgba(155, 182, 153, 0.2)",
+              borderColor: "rgba(155, 182, 153, 1)"
+          },
+          {
+              label: "YFI",
+              data: YFI,
+              fill: true,
+              backgroundColor: "rgba(93, 220, 31, 0.2)",
+              borderColor: "rgba(93, 220, 31, 1)"
+          },
+          {
+              label: "BUSD",
+              data: BUSD,
+              fill: true,
+              backgroundColor: "rgba(101, 239, 163, 0.2)",
+              borderColor: "rgba(101, 239, 163, 1)"
+          },
+          {
+              label: "USDT",
+              data: USDT,
+              fill: true,
+              backgroundColor: "rgba(202, 19, 154, 0.2)",
+              borderColor: "rgba(202, 19, 154, 1)"
+          },
+          {
+              label: "SUSD",
+              data: SUSD,
+              fill: true,
+              backgroundColor: "rgba(217, 251, 247, 0.2)",
+              borderColor: "rgba(217, 251, 247, 1)"
+          },
+          {
+              label: "RENFIL",
+              data: RENFIL,
+              fill: true,
+              backgroundColor: "rgba(184, 159, 101, 0.2)",
+              borderColor: "rgba(184, 159, 101, 1)"
+          },
+          {
+              label: "XSUSHI",
+              data: XSUSHI,
+              fill: true,
+              backgroundColor: "rgba(5, 56, 141, 0.2)",
+              borderColor: "rgba(5, 56, 141, 1)"
+          },
+          ]
+        }
+      );
+
+      setDataDailyPartial(
+        {
+          labels: labels,
+          datasets: [
+            {
+              label: "WBTC",
+              data: WBTC,
+              fill: true,
+              backgroundColor: "rgba(220, 64, 33, 0.2)",
+              borderColor: "rgba(220, 64, 33, 1)"
+          },
+          {
+              label: "UNI",
+              data: UNI,
+              fill: true,
+              backgroundColor: "rgba(244, 250, 40, 0.2)",
+              borderColor: "rgba(244, 250, 40, 1)"
+          },
+          {
+              label: "DAI",
+              data: DAI,
+              fill: true,
+              backgroundColor: "rgba(231, 109, 241, 0.2)",
+              borderColor: "rgba(231, 109, 241, 1)"
+          },
+          {
+              label: "ENJ",
+              data: ENJ,
+              fill: true,
+              backgroundColor: "rgba(28, 46, 239, 0.2)",
+              borderColor: "rgba(28, 46, 239, 1)"
+          },
+          {
+              label: "USDC",
+              data: USDC,
+              fill: true,
+              backgroundColor: "rgba(218, 7, 66, 0.2)",
+              borderColor: "rgba(218, 7, 66, 1)"
+          },
+          {
+              label: "GUSD",
+              data: GUSD,
+              fill: true,
+              backgroundColor: "rgba(58, 195, 120, 0.2)",
+              borderColor: "rgba(58, 195, 120, 1)"
+          },
+          {
+              label: "RAI",
+              data: RAI,
+              fill: true,
+              backgroundColor: "rgba(18, 116, 209, 0.2)",
+              borderColor: "rgba(18, 116, 209, 1)"
+          },
+          {
+              label: "CRV",
+              data: CRV,
+              fill: true,
+              backgroundColor: "rgba(228, 34, 41, 0.2)",
+              borderColor: "rgba(228, 34, 41, 1)"
+          },
+          {
+              label: "BAL",
+              data: BAL,
+              fill: true,
+              backgroundColor: "rgba(133, 74, 237, 0.2)",
+              borderColor: "rgba(133, 74, 237, 1)"
+          },
+          {
+              label: "PAX",
+              data: PAX,
+              fill: true,
+              backgroundColor: "rgba(167, 44, 192, 0.2)",
+              borderColor: "rgba(167, 44, 192, 1)"
+          },
+          {
+              label: "FRAX",
+              data: FRAX,
+              fill: true,
+              backgroundColor: "rgba(89, 229, 99, 0.2)",
+              borderColor: "rgba(89, 229, 99, 1)"
+          },
+          {
+              label: "REN",
+              data: REN,
+              fill: true,
+              backgroundColor: "rgba(110, 33, 230, 0.2)",
+              borderColor: "rgba(110, 33, 230, 1)"
+          },
+          {
+              label: "BAT",
+              data: BAT,
+              fill: true,
+              backgroundColor: "rgba(118, 244, 127, 0.2)",
+              borderColor: "rgba(118, 244, 127, 1)"
+          },
+          {
+              label: "TUSD",
+              data: TUSD,
+              fill: true,
+              backgroundColor: "rgba(127, 42, 84, 0.2)",
+              borderColor: "rgba(127, 42, 84, 1)"
+          },
+          {
+              label: "DPI",
+              data: DPI,
+              fill: true,
+              backgroundColor: "rgba(248, 148, 246, 0.2)",
+              borderColor: "rgba(248, 148, 246, 1)"
+          },
+          {
+              label: "LINK",
+              data: LINK,
+              fill: true,
+              backgroundColor: "rgba(3, 70, 127, 0.2)",
+              borderColor: "rgba(3, 70, 127, 1)"
+          },
+          {
+              label: "MANA",
+              data: MANA,
+              fill: true,
+              backgroundColor: "rgba(108, 89, 239, 0.2)",
+              borderColor: "rgba(108, 89, 239, 1)"
+          },
+          {
+              label: "WETH",
+              data: WETH,
+              fill: true,
+              backgroundColor: "rgba(215, 21, 26, 0.2)",
+              borderColor: "rgba(215, 21, 26, 1)"
+          },
+          {
+              label: "AAVE",
+              data: AAVE,
+              fill: true,
+              backgroundColor: "rgba(14, 207, 80, 0.2)",
+              borderColor: "rgba(14, 207, 80, 1)"
+          },
+          {
+              label: "AMPL",
+              data: AMPL,
+              fill: true,
+              backgroundColor: "rgba(223, 193, 220, 0.2)",
+              borderColor: "rgba(223, 193, 220, 1)"
+          },
+          {
+              label: "ZRX",
+              data: ZRX,
+              fill: true,
+              backgroundColor: "rgba(158, 210, 72, 0.2)",
+              borderColor: "rgba(158, 210, 72, 1)"
+          },
+          {
+              label: "SNX",
+              data: SNX,
+              fill: true,
+              backgroundColor: "rgba(220, 111, 182, 0.2)",
+              borderColor: "rgba(220, 111, 182, 1)"
+          },
+          {
+              label: "KNC",
+              data: KNC,
+              fill: true,
+              backgroundColor: "rgba(129, 29, 245, 0.2)",
+              borderColor: "rgba(129, 29, 245, 1)"
+          },
+          {
+              label: "MKR",
+              data: MKR,
+              fill: true,
+              backgroundColor: "rgba(142, 201, 36, 0.2)",
+              borderColor: "rgba(142, 201, 36, 1)"
+          },
+          {
+              label: "USDP",
+              data: USDP,
+              fill: true,
+              backgroundColor: "rgba(155, 182, 153, 0.2)",
+              borderColor: "rgba(155, 182, 153, 1)"
+          },
+          {
+              label: "YFI",
+              data: YFI,
+              fill: true,
+              backgroundColor: "rgba(93, 220, 31, 0.2)",
+              borderColor: "rgba(93, 220, 31, 1)"
+          },
+          {
+              label: "BUSD",
+              data: BUSD,
+              fill: true,
+              backgroundColor: "rgba(101, 239, 163, 0.2)",
+              borderColor: "rgba(101, 239, 163, 1)"
+          },
+          {
+              label: "USDT",
+              data: USDT,
+              fill: true,
+              backgroundColor: "rgba(202, 19, 154, 0.2)",
+              borderColor: "rgba(202, 19, 154, 1)"
+          },
+          {
+              label: "SUSD",
+              data: SUSD,
+              fill: true,
+              backgroundColor: "rgba(217, 251, 247, 0.2)",
+              borderColor: "rgba(217, 251, 247, 1)"
+          },
+          {
+              label: "RENFIL",
+              data: RENFIL,
+              fill: true,
+              backgroundColor: "rgba(184, 159, 101, 0.2)",
+              borderColor: "rgba(184, 159, 101, 1)"
+          },
+          {
+              label: "XSUSHI",
+              data: XSUSHI,
+              fill: true,
+              backgroundColor: "rgba(5, 56, 141, 0.2)",
+              borderColor: "rgba(5, 56, 141, 1)"
+          },
+          ]
+        }
+      );
+
+    }).then (
+      () => {
+        axios.get("https://api.flipsidecrypto.com/api/v2/queries/0a5e6be9-991e-4c3c-807a-e08f74e371d5/data/latest")
+        .then( response => {
+          setDataDaily(response.data)
+        })
+      }
+    ).catch(error => {
       setError(true);
       setErrorData(error);
     }).finally(() => {
       setLoading(false);
     })
-
   } , []);
 
-  const prevClicked = () => {
-    let currentPage = page;
-    if (page > 0) {
-      setPage(page - 1);   
-      currentPage = page-1;
-    }
-    setPageData(data.slice((currentPage)*20,(currentPage+1)*20))
-  }
+  if (error) return <div>{errorData}</div>;
+  if (loading) return <div>Loading...</div>;
 
-  const nextClicked = () => {
-    let currentPage = page;
-    if (page > 0) {
-      setPage(page + 1);
-      currentPage = page + 1;
-    }
-    setPageData(data.slice((currentPage)*20,(currentPage+1)*20))
-  }
-
-  if (error) return <div className="content">{errorData}</div>;
-  if (loading) return <div className="content">Loading...</div>;
-
-  return (
-    <>
-    <h1>Compound Flash Loans</h1>
-        <Row>
-          <Col md="1">Block_ID</Col>
-          <Col md="1">Symbol</Col>
-          <Col md="2">Borrowed_Value_USD</Col>
-          <Col md="2">Repaid_Value_USD</Col>
-          <Col md="6">Transaction_ID</Col>
-        </Row>
-        { pageData.map( x => {
-          return (
-          <Row>
-          <Col md="1">{x.Block_ID}</Col>
-          <Col md="1">{x.Borrowed_Asset}</Col>
-          <Col md="2">{ValueWrapper(x.Borrowed_Amount_USD)}</Col>
-          <Col md="2">{ValueWrapper(x.Repaid_Amount_USD)}</Col>
-          <Col md="6"><a target="_blank" href={"https://etherscan.io/tx/" + x.Transaction_ID}>{x.Transaction_ID}</a></Col>
-          </Row>
-          );
-        }) }
-        <Row>
-          <Col md="5"></Col>
-          <Col md="1"><Button onClick={prevClicked}>Prev</Button></Col>
-          <Col md="1"><Button onClick={nextClicked}>Next</Button></Col>
-          <Col md="5"></Col>
-        </Row>
-    </>
-  )
-
+  return (<>
+  <h1>Metric Dashboard</h1>
+  <p>
+  Create a dashboard that visualizes these metrics for any given week in the past year:
+    <li>Total Liquidity</li>
+    <li>% Utilization (utilization of available liquidity) and generated interest for depositors</li>
+    <li>Total flashloan volume in USD and amount of fees they generated for depositors</li>
+    <li>Total USD liquidated and resultant fees for liquidators</li>
+    <li>Total fees generated by the protocol</li>
+    <li>Total Fees generated for ecosystem income collectors on Ethereum</li>
+    <ul>
+        <li>0x464c71f6c2f760dda6093dcb91c24c39e5d6e18c</li>
+        <li>0xe3d9988f676457123c5fd01297605efdd0cba1ae</li>
+    </ul>
+  </p>
+  <Line data={dataDailyPartial} options={firstChartOptions}
+      //getDatasetAtEvent={mainChartClick}
+      getElementAtEvent={getElementAtEvent}
+      //getElementsAtEvent={getElementsAtEvent}
+    >
+   </Line>
+   <div align="center"><Button onClick={resetChart}>Reset Chart</Button></div>
+  </>)
 }
 
-function AAVE_9() {
+function AAVE_12() {
 
   const [activeTab, setActiveTab] = useState('1');
 
@@ -368,52 +996,18 @@ function AAVE_9() {
             className={classnames({ active: activeTab === '1' })}
             onClick={() => { toggle('1'); }}
           >
-            Comparisons
+            Metric Dashboard
           </NavLink>
         </NavItem>
-        <NavItem>
-          <NavLink
-            className={classnames({ active: activeTab === '2' })}
-            onClick={() => { toggle('2'); }}
-          >
-            Compound Flash Loans
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink
-            className={classnames({ active: activeTab === '3' })}
-            onClick={() => { toggle('3'); }}
-          >
-            AAVE Flash Loans
-          </NavLink>
-        </NavItem>
-
       </Nav>
         <TabContent activeTab={activeTab}>
-        <TabPane tabId='2'>
-        <Compound_Transactions></Compound_Transactions>
-        </TabPane>
-        <TabPane tabId='3'>
-        <AAVE_Transactions />
-        </TabPane>
-        <TabPane tabId='1'>
-          <h1>Flash Loans - Comparison</h1>
-          <Row>
-            <Col md="6">
-             <Row><Col md="12"><div align="center">Compound</div></Col></Row>
-             <Row><Compound_Charts/></Row>
-            </Col>
-            <Col md="6">
-             <Row><Col md="12"><div align="center">AAVE</div></Col></Row>
-             <Row><AAVE_Charts/></Row>
-            </Col>
-          </Row>
-        </TabPane>
+          <TabPane tabId='1'>
+            <TotalValueLocked></TotalValueLocked>
+          </TabPane>
         </TabContent>
-
       </div>
     </>
   );
 }
 
-export default AAVE_9;
+export default AAVE_12;
