@@ -25,6 +25,9 @@ import TableList from "views/Tables.js";
 import UserPage from "views/User.js";
 import UpgradeToPro from "views/Upgrade.js";
 import AAVE_9 from "views/AAVE_9.js";
+import AAVE_10 from "views/AAVE_10.js";
+import AAVE_11 from "views/AAVE_11.js";
+import AAVE_12 from "views/AAVE_12.js";
 
 var routes = [
   {
@@ -32,6 +35,27 @@ var routes = [
     name: "AAVE 9",
     icon: "nc-icon nc-chart-bar-32",
     component: AAVE_9,
+    layout: "/admin",
+  },
+  {
+    path: "/aave_10",
+    name: "AAVE 10",
+    icon: "nc-icon nc-chart-bar-32",
+    component: AAVE_10,
+    layout: "/admin",
+  },
+  {
+    path: "/aave_11",
+    name: "AAVE 11",
+    icon: "nc-icon nc-chart-bar-32",
+    component: AAVE_11,
+    layout: "/admin",
+  },
+  {
+    path: "/aave_12",
+    name: "AAVE 12",
+    icon: "nc-icon nc-chart-bar-32",
+    component: AAVE_12,
     layout: "/admin",
   },
   {
