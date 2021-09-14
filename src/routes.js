@@ -30,6 +30,14 @@ var routes = [
   {
     path: "/aave_9",
     name: "AAVE 9",
+    icon: "nc-icon nc-chart-bar-32",
+    component: AAVE_9,
+    layout: "/admin",
+  },
+  {
+    pro: true,
+    path: "/fakePath",
+    name: "Powered By Flipside",
     icon: "nc-icon nc-spaceship",
     component: AAVE_9,
     layout: "/admin",
