@@ -28,6 +28,7 @@ import AAVE_9 from "views/AAVE_9.js";
 import AAVE_10 from "views/AAVE_10.js";
 import AAVE_11 from "views/AAVE_11.js";
 import AAVE_12 from "views/AAVE_12.js";
+import Curve_Free from "views/Curve_Free.js";
 
 var routes = [
   {
@@ -56,6 +57,13 @@ var routes = [
     name: "AAVE 12",
     icon: "nc-icon nc-chart-bar-32",
     component: AAVE_12,
+    layout: "/admin",
+  },
+  {
+    path: "/curve_free",
+    name: "Curve Free Square",
+    icon: "nc-icon nc-chart-bar-32",
+    component: Curve_Free,
     layout: "/admin",
   },
   {
