@@ -37,139 +37,10 @@ import {
   TabPane,
   Nav,
   NavItem,
-  NavLink
+  NavLink,
+  Input
 } from "reactstrap";
 import classnames from 'classnames';
-
-function Compound_USD_Value() {
-
-}
-
-function AAVE_Charts() {
-  const [ loading, setLoading ] = useState(true); 
-  const [ error, setError ] = useState(false);
-  const [ AAVEChartData, setAAVEChartData ] = useState();
-  const [ AAVEChartData2, setAAVEChartData2 ] = useState();
-  const [ errorData, setErrorData ] = useState(false);
-
-  let tmpX = [];
-  let tmpY = [];
-  let tmpZ = [];
-  useEffect( () => {
-    axios.get("https://api.flipsidecrypto.com/api/v2/queries/8292ba94-5594-433f-ae54-6ff36ebd41e1/data/latest")
-    .then( response => {
-      response.data.map( x => {
-        tmpX.push(x.DDATE)
-        tmpY.push(x.SSUM)
-        tmpZ.push(x.CCOUNT)
-      });
-      setAAVEChartData({
-        labels: tmpX,
-        datasets: [
-          {
-          label: "Flashloan in USD",
-          data: tmpY,
-          fill: true,
-          backgroundColor: "rgba(165, 52, 235,0.2)",
-          borderColor: "rgba(165, 52, 235,1)"
-          }
-        ]
-      });
-      setAAVEChartData2({
-        labels: tmpX,
-        datasets: [
-          {
-          label: "Number of FlashLoans Daily",
-          data: tmpZ,
-          fill: true,
-          backgroundColor: "rgba(165, 52, 235,0.2)",
-          borderColor: "rgba(165, 52, 235,1)"
-          }
-        ]
-      });
-    }).catch(error => {
-      setError(true);
-      setErrorData(error);
-    }).finally(() => {
-      setLoading(false);
-    })
-  } , []);
-
-
-  if (error) return <div className="content">{errorData}</div>;
-  if (loading) return <div className="content">Loading...</div>;
-
-  return (
-    <>
-    <Line data={AAVEChartData}></Line>
-    <Line data={AAVEChartData2}></Line>
-    </>
-  )
-
-}
-
-function Compound_Charts() {
-  const [ loading, setLoading ] = useState(true); 
-  const [ error, setError ] = useState(false);
-  const [ AAVEChartData, setAAVEChartData ] = useState();
-  const [ AAVEChartData2, setAAVEChartData2 ] = useState();
-  const [ errorData, setErrorData ] = useState(false);
-
-  let tmpX = [];
-  let tmpY = [];
-  let tmpZ = [];
-  useEffect( () => {
-    axios.get("https://api.flipsidecrypto.com/api/v2/queries/810b375b-da6e-485b-9f0b-aec82d340b8f/data/latest")
-    .then( response => {
-      response.data.map( x => {
-        tmpX.push(x.DDATE)
-        tmpY.push(x.SSUM)
-        tmpZ.push(x.CCOUNT)
-      });
-      setAAVEChartData({
-        labels: tmpX,
-        datasets: [
-          {
-          label: "Flashloan in USD",
-          data: tmpY,
-          fill: true,
-          backgroundColor: "rgba(52, 235, 52, 0.2)",
-          borderColor: "rgba(52, 235, 52, 1)"
-          }
-        ]
-      });
-      setAAVEChartData2({
-        labels: tmpX,
-        datasets: [
-          {
-          label: "Number of FlashLoans Daily",
-          data: tmpZ,
-          fill: true,
-          backgroundColor: "rgba(52, 235, 52, 0.2)",
-          borderColor: "rgba(52, 235, 52, 1)"
-          }
-        ]
-      });
-    }).catch(error => {
-      setError(true);
-      setErrorData(error);
-    }).finally(() => {
-      setLoading(false);
-    })
-  } , []);
-
-
-  if (error) return <div className="content">{errorData}</div>;
-  if (loading) return <div className="content">Loading...</div>;
-
-  return (
-    <>
-    <Line data={AAVEChartData}></Line>
-    <Line data={AAVEChartData2}></Line>
-    </>
-  )
-
-}
 
 function ValueWrapper(value) {
   let textValue = value.toString();
@@ -197,218 +68,219 @@ function ValueWrapper(value) {
   return value;
 }
 
-function AAVE_Transactions() {
-  const [data, setData] = useState([]);
-  const [pageData, setPageData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [errorData, setErrorData] = useState(false);
-  const [page, setPage] = useState(1);
+function mergeSortedArray(a,b){
+  var tempArray = [];
+  var currentPos = {
+      a: 0,
+      b: 0
+  }
+  while(currentPos.a < a.length || currentPos.b < b.length) {
+      if(typeof a[currentPos.a] === 'undefined') {
+          tempArray.push(b[currentPos.b++]);
+      } else if(typeof b[currentPos.b] === 'undefined') {
+        tempArray.push(a[currentPos.a++]);
+      } else if(parseInt(a[currentPos.a].BLOCK_ID) < parseInt(b[currentPos.b].BLOCK_ID)){
+          tempArray.push(b[currentPos.b++]);
+      } else {
+          tempArray.push(a[currentPos.a++]);
+      }
+  }
+  return tempArray;
+}
 
-  const [aave_data, aave_setData] = useState([]);
-  const [aave_pageData, aave_setPageData] = useState([]);
-  const [aave_page, aave_setPage] = useState(1);
+function AnalysisPage(props) {
 
-  useEffect( () => {
-    axios.get("https://api.flipsidecrypto.com/api/v2/queries/a33d2381-961a-43fa-b865-be8baf07ab26/data/latest")
-    .then( response => {
-      aave_setData(response.data);
-      aave_setPageData((response.data).slice(0,20));
-    }).catch(error => {
-      setError(true);
-      setErrorData(error);
-    }).finally(() => {
-      setLoading(false);
-    })
+  const { userAddress, borrowData, liquidationData, repaymentData} = props;
 
-  } , []);
+  
 
+  if (borrowData == undefined || liquidationData == undefined || repaymentData == undefined) return (<div> Loading..</div>);
+  let listOfBorrows = []
+  let listOfLiqudations = []
+  let listOfRepayments = []
+  let combinedList = []
 
-  const prevClicked_aave = () => {
-    let currentPage = aave_page;
-    if (aave_page > 0) {
-      aave_setPage(aave_page - 1);   
-      currentPage = aave_page-1;
+  borrowData.map( x => {
+    if (x.BORROWER_ADDRESS.valueOf() === userAddress.valueOf())
+    {
+      x.TX_TYPE = "Borrow";
+      listOfBorrows.push(x)
     }
-    aave_setPageData(aave_data.slice((currentPage)*20,(currentPage+1)*20))
+  })
+
+  liquidationData.map( x => {
+    if (x.BORROWER.valueOf() === userAddress.valueOf())
+    {
+      x.TX_TYPE = "Liqudate";
+      listOfLiqudations.push(x)
+    }
+  })
+
+  repaymentData.map( x => {
+    if (x.BORROWER.valueOf() === userAddress.valueOf())
+    {
+      x.TX_TYPE = "Repay";
+      listOfRepayments.push(x)
+    }
+  })
+
+  combinedList = mergeSortedArray(mergeSortedArray(listOfBorrows,listOfLiqudations),listOfRepayments)
+
+  let combinedListReverse = []
+  combinedList.forEach(element => {
+    combinedListReverse.push(element);
+  });
+  combinedListReverse.reverse();
+  let gBlockID = []
+  let USDValues = []
+  let sumValue = 0;
+  combinedListReverse.map( x => {
+    //if (x.SYMBOL.valueOf() ==="WETH")
+    {
+      gBlockID.push(x.BLOCK_ID);
+      if (x.TX_TYPE.valueOf() === "Borrow".valueOf())
+      {
+        sumValue += x.BORROWED_USD;
+      }
+      else
+      {
+        sumValue -= x.BORROWED_USD;
+      }
+      USDValues.push(sumValue);
+    }
+  })
+
+  const chartOptions = {
+    title: { display: true, text: 'My Chart' },
+    zoom: {
+      enabled: true,
+      mode: 'x',
+    },
+    pan: {
+      enabled: true,
+      mode: 'x',
+    },
   }
 
-  const nextClicked_aave = () => {
-    let currentPage = aave_page;
-    if (aave_page > 0) {
-      aave_setPage(aave_page + 1);
-      currentPage = aave_page+1;
-    }
-    aave_setPageData(aave_data.slice((currentPage)*20,(currentPage+1)*20))
+  const chartData = {
+    labels: gBlockID,
+    datasets: [
+      {
+          label: "Borrowed Value in USD",
+          data: USDValues,
+          fill: true,
+          backgroundColor: "rgba(0, 100, 200, 0.2)",
+          borderColor: "rgba(20, 100, 200, 1)"
+      }
+    ]
   }
-
-  if (error) return <div className="content">{errorData}</div>;
-  if (loading) return <div className="content">Loading...</div>;
 
   return (
     <>
-    <h1>AAVE Flash Loans</h1>
-          <Row>
-            <Col md="1">Block_ID</Col>
-            <Col md="1">Symbol</Col>
-            <Col md="2">Borrowed_Value_USD</Col>
-            <Col md="2">Repaid_Value_USD</Col>
-            <Col md="6">Transaction_ID</Col>
-          </Row>
-          { aave_pageData.map( x => {
+    <br></br>
+    <h3>Analysis of {userAddress}</h3>
+    <Line data={chartData} options={chartOptions}></Line>
+    <h2>Raw Transactions</h2>
+    <Row id="titles">
+            <Col md="1">Block</Col>
+            <Col md="1">Type</Col>
+            <Col md="2">USD</Col>
+            <Col md="1">Token</Col>
+            <Col md="7">Transaction ID</Col>
+    </Row>
+    { combinedList.map( x => {
           return (
-          <Row>
-          <Col md="1">{x.BLOCK_ID}</Col>
-          <Col md="1">{x.SYMBOL}</Col>
-          <Col md="2">{ValueWrapper(x.FLASHLOAN_AMOUNT_USD)}</Col>
-          <Col md="2">{ValueWrapper(x.FLASHLOAN_AMOUNT_USD+x.PREMIUM_AMOUNT_USD)}</Col>
-          <Col md="6"><a target="_blank" href={"https://etherscan.io/tx/" + x.TX_ID}>{x.TX_ID}</a></Col>
+          <Row id={x.TX_ID}>
+            <Col md="1">{x.BLOCK_ID}</Col>
+            <Col md="1">{x.TX_TYPE}</Col>
+            <Col md="2">{ValueWrapper(x.BORROWED_USD)} USD</Col>
+            <Col md="1">{x.SYMBOL}</Col>
+            <Col md="7"><a target="_blank" href={"https://etherscan.io/tx/" + x.TX_ID}>{x.TX_ID}</a></Col>
           </Row>
           );
         }) }
-          <Row>
-            <Col md="5"></Col>
-            <Col md="1"><Button onClick={prevClicked_aave}>Prev</Button></Col>
-            <Col md="1"><Button onClick={nextClicked_aave}>Next</Button></Col>
-            <Col md="5"></Col>
-        </Row>
     </>
   )
 }
 
-function Compound_Transactions() {
-  const [data, setData] = useState([]);
-  const [pageData, setPageData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-  const [errorData, setErrorData] = useState(false);
-  const [page, setPage] = useState(1);
-
-  useEffect( () => {
-    axios.get("https://api.flipsidecrypto.com/api/v2/queries/9ff6ad23-4643-4960-89c1-14e7ac718fb3/data/latest")
-    .then( response => {
-      setData(response.data);
-      setPageData((response.data).slice(0,20));
-    }).catch(error => {
-      setError(true);
-      setErrorData(error);
-    }).finally(() => {
-      setLoading(false);
-    })
-
-  } , []);
-
-  const prevClicked = () => {
-    let currentPage = page;
-    if (page > 0) {
-      setPage(page - 1);   
-      currentPage = page-1;
-    }
-    setPageData(data.slice((currentPage)*20,(currentPage+1)*20))
-  }
-
-  const nextClicked = () => {
-    let currentPage = page;
-    if (page > 0) {
-      setPage(page + 1);
-      currentPage = page + 1;
-    }
-    setPageData(data.slice((currentPage)*20,(currentPage+1)*20))
-  }
-
-  if (error) return <div className="content">{errorData}</div>;
-  if (loading) return <div className="content">Loading...</div>;
-
-  return (
-    <>
-    <h1>Compound Flash Loans</h1>
-        <Row>
-          <Col md="1">Block_ID</Col>
-          <Col md="1">Symbol</Col>
-          <Col md="2">Borrowed_Value_USD</Col>
-          <Col md="2">Repaid_Value_USD</Col>
-          <Col md="6">Transaction_ID</Col>
-        </Row>
-        { pageData.map( x => {
-          return (
-          <Row>
-          <Col md="1">{x.Block_ID}</Col>
-          <Col md="1">{x.Borrowed_Asset}</Col>
-          <Col md="2">{ValueWrapper(x.Borrowed_Amount_USD)}</Col>
-          <Col md="2">{ValueWrapper(x.Repaid_Amount_USD)}</Col>
-          <Col md="6"><a target="_blank" href={"https://etherscan.io/tx/" + x.Transaction_ID}>{x.Transaction_ID}</a></Col>
-          </Row>
-          );
-        }) }
-        <Row>
-          <Col md="5"></Col>
-          <Col md="1"><Button onClick={prevClicked}>Prev</Button></Col>
-          <Col md="1"><Button onClick={nextClicked}>Next</Button></Col>
-          <Col md="5"></Col>
-        </Row>
-    </>
-  )
-
-}
-
-function AAVE_9() {
+function AAVE_10() {
 
   const [activeTab, setActiveTab] = useState('1');
+  const [searchText, setSearchText] = useState("0x5338035c008ea8c4b850052bc8dad6a33dc2206c");
+  const [borrowData, setBorrowData] = useState();
+  const [repaymentData, setRepaymentData] = useState();
+  const [liquidationData, setLiquidationData] = useState();
+  const [loading1, setLoading1] = useState();
+  const [loading2, setLoading2] = useState();
+  const [loading3, setLoading3] = useState();
+  const [error, setError] = useState();
+  const [errorData, setErrorData] = useState();
 
   const toggle = tab => {
     if(activeTab !== tab) setActiveTab(tab);
   }
 
+  const triggerSearch = e => {
+    if (e.key === 'Enter')
+    {
+      console.log("Search Triggered");
+    }
+  }
+
+  useEffect( () => {
+    axios.get("https://api.flipsidecrypto.com/api/v2/queries/6d0ed568-04c0-4c52-ba82-54cf4e62504d/data/latest")
+    .then( response => {
+      setBorrowData(response.data);
+    }).catch(error => {
+      setError(true);
+      setErrorData(error);
+    }).finally(() => {
+      setLoading1(false);
+    })
+  } , []);
+  
+  useEffect( () => {
+    axios.get("https://api.flipsidecrypto.com/api/v2/queries/acccb50a-4616-4cea-a22a-d10018e71914/data/latest")
+    .then( response => {
+      setRepaymentData(response.data);
+    }).catch(error => {
+      setError(true);
+      setErrorData(error);
+    }).finally(() => {
+      setLoading2(false);
+    })
+  } , []);
+
+  useEffect( () => {
+    axios.get("https://api.flipsidecrypto.com/api/v2/queries/cf39a4c6-5dd6-45e8-ad27-a19bc935095e/data/latest")
+    .then( response => {
+      setLiquidationData(response.data);
+    }).catch(error => {
+      setError(true);
+      setErrorData(error);
+    }).finally(() => {
+      setLoading3(false);
+    })
+  } , []);
+
+  if (loading1 || loading2 || loading3 ) return (<div className="content">Loading...</div>)
+  if ( error ) return (<div className="content">{errorData}</div>)
+
   return (
     <>
       <div className="content">
-      <Nav tabs>
-      <NavItem>
-          <NavLink
-            className={classnames({ active: activeTab === '1' })}
-            onClick={() => { toggle('1'); }}
-          >
-            Comparisons
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink
-            className={classnames({ active: activeTab === '2' })}
-            onClick={() => { toggle('2'); }}
-          >
-            Compound Flash Loans
-          </NavLink>
-        </NavItem>
-        <NavItem>
-          <NavLink
-            className={classnames({ active: activeTab === '3' })}
-            onClick={() => { toggle('3'); }}
-          >
-            AAVE Flash Loans
-          </NavLink>
-        </NavItem>
-
-      </Nav>
         <TabContent activeTab={activeTab}>
-        <TabPane tabId='2'>
-        <Compound_Transactions></Compound_Transactions>
-        </TabPane>
-        <TabPane tabId='3'>
-        <AAVE_Transactions />
-        </TabPane>
-        <TabPane tabId='1'>
-          <h1>Flash Loans - Comparison</h1>
-          <Row>
-            <Col md="6">
-             <Row><Col md="12"><div align="center">Compound</div></Col></Row>
-             <Row><Compound_Charts/></Row>
-            </Col>
-            <Col md="6">
-             <Row><Col md="12"><div align="center">AAVE</div></Col></Row>
-             <Row><AAVE_Charts/></Row>
-            </Col>
-          </Row>
-        </TabPane>
+          <TabPane tabId='1'>
+            <h1>Loans - Analysis</h1>
+            <p>e.g 0x9a048a7bf38306c055c05606a6010c78cfc7c1e8 or 0x5338035c008ea8c4b850052bc8dad6a33dc2206c </p>
+            <Input placeholder="Search" value={searchText} onKeyDown={triggerSearch} onChange={ e => { setSearchText(e.target.value) }}></Input>
+            <AnalysisPage
+            userAddress={searchText} 
+            borrowData={borrowData}
+            liquidationData={liquidationData}
+            repaymentData={repaymentData}
+            ></AnalysisPage>
+          </TabPane>
         </TabContent>
 
       </div>
@@ -416,4 +288,4 @@ function AAVE_9() {
   );
 }
 
-export default AAVE_9;
+export default AAVE_10;
