@@ -469,7 +469,7 @@ function TotalValueLocked() {
           labels: labels,
           datasets: [
           {
-              label: "Fees Collected in USD Per Day",
+              label: "Fees Collected in USD Per Week",
               data: WBTC,
               fill: true,
               backgroundColor: "rgba(0, 100, 200, 0.2)",

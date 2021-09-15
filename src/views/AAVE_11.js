@@ -959,7 +959,8 @@ function TotalValueLocked() {
   <p>Visualize the daily total liquidity in Aave for the past year with the capability to zoom in/search 
     for specific days or ranges of days. What are the most interesting ways to answer the question: 
     What assets are dominant in Aave's liquidity pools and when?</p>
-  
+  <p>Click on a spot to zoom into the individual days.</p>
+  <p>Toggle lines on and off by clicking on the legend.</p>
   <Line data={dataDailyPartial} options={firstChartOptions}
       //getDatasetAtEvent={mainChartClick}
       getElementAtEvent={getElementAtEvent}
