@@ -31,3 +31,6 @@ Try it out today!
 This website gives you the updated csv data every 15 minutes.  
 https://aave-dashboards.vercel.app/admin/OxSisyphus   
 Will probably write a different site for people to extract csv from flipside's API.  
+
+CSV Downloader here -> https://flipside-testframe.vercel.app/csv-download?url=https://api.flipsidecrypto.com/api/v2/queries/3c455982-d2e3-4a4a-8a45-6134acf52a6e/data/latest  
+I think its not that hard to decipher it..
