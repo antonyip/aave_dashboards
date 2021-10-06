@@ -2,9 +2,10 @@
 https://twitter.com/0xSisyphus/status/1445378356619382786?s=20  
 ![image](https://user-images.githubusercontent.com/9086733/136124795-97c1e765-2b4f-4557-ae2c-192293f1922b.png)  
 ## TL:DR
-Raw Data Here
-[OpenSeaData-0xSisyphus.csv](https://github.com/antonyip/aave_dashboards/files/7290121/OpenSeaData-0xSisyphus.csv)
-
+Raw Data Here  
+[OpenSeaData-0xSisyphus.csv](https://github.com/antonyip/aave_dashboards/files/7290121/OpenSeaData-0xSisyphus.csv)  
+This website gives you the updated csv data every 15 minutes.  
+https://aave-dashboards.vercel.app/admin/OxSisyphus  
 ## Query Used 
 ```
 select sum(price_usd) as usd_volume, 
@@ -24,4 +25,9 @@ It has API endpoints which you can use to pull the data like [here](https://api.
 You can even download CSV files using the 3 dots like such!  
 [Website to try it on](https://app.flipsidecrypto.com/dashboard/flash-opensea-ZEvdQ1)  
 ![image](https://user-images.githubusercontent.com/9086733/136125915-d8798881-091f-421c-b2b1-e0528a3b0c56.png)  
-Try it out today!
+Try it out today!  
+
+## Update
+This website gives you the updated csv data every 15 minutes.  
+https://aave-dashboards.vercel.app/admin/OxSisyphus   
+Will probably write a different site for people to extract csv from flipside's API.  
