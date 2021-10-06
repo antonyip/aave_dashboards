@@ -29,6 +29,7 @@ import AAVE_10 from "views/AAVE_10.js";
 import AAVE_11 from "views/AAVE_11.js";
 import AAVE_12 from "views/AAVE_12.js";
 import Curve_Free from "views/Curve_Free.js";
+import OxSisyphus from "views/OxSisyphus.js"
 
 var routes = [
   {
@@ -64,6 +65,13 @@ var routes = [
     name: "Curve Free Square",
     icon: "nc-icon nc-chart-bar-32",
     component: Curve_Free,
+    layout: "/admin",
+  },
+  {
+    path: "/OxSisyphus",
+    name: "OpenSea Raw Data",
+    icon: "nc-icon nc-chart-bar-32",
+    component: OxSisyphus,
     layout: "/admin",
   },
   {
